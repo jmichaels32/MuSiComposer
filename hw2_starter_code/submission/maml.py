@@ -189,8 +189,25 @@ class MAML:
         # Make sure to populate accuracies and update parameters.
         # Use F.cross_entropy to compute classification losses.
         # Use util.score to compute accuracies.
-        
 
+        # Calculate initial accuracy on untrained parameters
+        accuracies.append(util.score(self._forward(images, parameters), labels))
+
+        # Update the parameters _num_inner_steps (L) times
+        old_parameters = parameters
+        for i in range(self._num_inner_steps):
+            # Calculate the gradients for the particular inner_step
+            gradients = torch.autograd.grad(F.cross_entropy(self._forward(images, parameters), labels), parameters.values(), create_graph=train)
+
+            # Update each parameter in parameters
+            for (index, layer) in enumerate(parameters.keys()):
+                parameters[layer] -= self._inner_lrs[layer] * gradients[index]
+
+            # With updated parameters, update the accuracies
+            accuracies.append(util.score(self._forward(images, parameters), labels))
+
+            # Make sure to update old parameters to new parameters
+            old_parameters = parameters
         ### END CODE HERE ###
         return parameters, accuracies, gradients
 
@@ -230,6 +247,23 @@ class MAML:
             # and accuracy_query_batch.
             # support accuracy: The first element (index 0) should be the accuracy before any steps are taken.
             
+            # Run inner loop on data
+            parameters, accuracies, _ = self._inner_loop(images_support, labels_support, train) 
+            accuracies_support_batch.append(accuracies)
+
+            # MAYBE GET RID OF GRADIENT UPDATE? SOME OTHER ERROR SOMEWHERE ELSE?
+            # Just like in the inner loop, calculate the update to the parameters (in this case thera)
+            loss = F.cross_entropy(self._forward(images_query, parameters), labels_query)
+            outer_loss_batch.append(loss)
+
+            gradients = torch.autograd.grad(loss, parameters.values(), create_graph=train)
+
+            # Update each parameter in parameters
+            for (index, layer) in enumerate(self._meta_parameters.keys()):
+                self._meta_parameters[layer] = self._meta_parameters[layer] - self._outer_lr * gradients[index]
+
+            # With updated parameters, update the accuracies
+            accuracy_query_batch.append(util.score(self._forward(images_query, self._meta_parameters), labels_query))
             ### END CODE HERE ###
         outer_loss = torch.mean(torch.stack(outer_loss_batch))
         accuracies_support = np.mean(

@@ -165,17 +165,17 @@ class ProtoNet:
                 prototypes = torch.stack([prototypes[index]/count[index] for index in range(num_classes)])
 
             query_features = self._network.forward(images_query)
-            # Compute probabilities based on squared euclidean distance 
-            euclidean_distances = torch.cdist(prototypes, query_features) ** 2
-            probabilities = F.softmax(-euclidean_distances, dim=1)
+            # Compute euclidean distance for each type
+            euclidean_distances_query = -(torch.cdist(prototypes, query_features) ** 2).t()
+            euclidean_distances_support = -(torch.cdist(prototypes, support_features) ** 2).t()
 
 
             # Compute loss on probabilities
-            loss_batch.append(F.cross_entropy(probabilities.t(), labels_query))
+            loss_batch.append(F.cross_entropy(euclidean_distances_query, labels_query))
 
             # Compute accuracies (support_batch, query_batch)
-            accuracy_support_batch.append(util.score((torch.cdist(prototypes, support_features) ** 2).t(), labels_support))
-            accuracy_query_batch.append(util.score(euclidean_distances.t(), labels_query))
+            accuracy_support_batch.append(util.score(euclidean_distances_support, labels_support))
+            accuracy_query_batch.append(util.score(euclidean_distances_query, labels_query))
             ### END CODE HERE ###
         return (
             torch.mean(torch.stack(loss_batch)),
