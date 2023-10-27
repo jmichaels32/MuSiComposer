@@ -19,6 +19,9 @@ from google_drive_downloader import GoogleDriveDownloader as gdd
 import omniglot
 import util
 
+
+torch.autograd.set_detect_anomaly(True)
+
 NUM_INPUT_CHANNELS = 1
 NUM_HIDDEN_CHANNELS = 32
 KERNEL_SIZE = 3
@@ -194,20 +197,16 @@ class MAML:
         accuracies.append(util.score(self._forward(images, parameters), labels))
 
         # Update the parameters _num_inner_steps (L) times
-        old_parameters = parameters
         for i in range(self._num_inner_steps):
             # Calculate the gradients for the particular inner_step
-            gradients = torch.autograd.grad(F.cross_entropy(self._forward(images, parameters), labels), parameters.values(), create_graph=train)
+            gradients = torch.autograd.grad(F.cross_entropy(self._forward(images, parameters), labels), parameters.values(), create_graph=train, retain_graph=True)
 
             # Update each parameter in parameters
             for (index, layer) in enumerate(parameters.keys()):
-                parameters[layer] -= self._inner_lrs[layer] * gradients[index]
+                parameters[layer] = parameters[layer].clone() - self._inner_lrs[layer] * gradients[index]
 
             # With updated parameters, update the accuracies
             accuracies.append(util.score(self._forward(images, parameters), labels))
-
-            # Make sure to update old parameters to new parameters
-            old_parameters = parameters
         ### END CODE HERE ###
         return parameters, accuracies, gradients
 
@@ -251,18 +250,11 @@ class MAML:
             parameters, accuracies, _ = self._inner_loop(images_support, labels_support, train) 
             accuracies_support_batch.append(accuracies)
 
-            # Just like in the inner loop, calculate the update to the parameters (in this case thera)
-            loss = F.cross_entropy(self._forward(images_query, parameters), labels_query)
-            outer_loss_batch.append(loss)
+            # Calculate loss based on parameters
+            outer_loss_batch.append(F.cross_entropy(self._forward(images_query, parameters), labels_query))
 
-            gradients = torch.autograd.grad(loss, parameters.values(), create_graph=train)
-
-            # Update each parameter in parameters
-            for (index, layer) in enumerate(self._meta_parameters.keys()):
-                self._meta_parameters[layer] = self._meta_parameters[layer] - self._outer_lr * gradients[index]
-
-            # With updated parameters, update the accuracies
-            accuracy_query_batch.append(util.score(self._forward(images_query, self._meta_parameters), labels_query))
+            # Calculate query accuracies based on parameters
+            accuracy_query_batch.append(util.score(self._forward(images_query, parameters), labels_query))
             ### END CODE HERE ###
         outer_loss = torch.mean(torch.stack(outer_loss_batch))
         accuracies_support = np.mean(
