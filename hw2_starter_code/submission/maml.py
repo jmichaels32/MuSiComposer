@@ -203,7 +203,7 @@ class MAML:
 
             # Update each parameter in parameters
             for (index, layer) in enumerate(parameters.keys()):
-                parameters[layer] = parameters[layer].clone() - self._inner_lrs[layer] * gradients[index]
+                parameters[layer] = parameters[layer] - self._inner_lrs[layer] * gradients[index]
 
             # With updated parameters, update the accuracies
             accuracies.append(util.score(self._forward(images, parameters), labels))
