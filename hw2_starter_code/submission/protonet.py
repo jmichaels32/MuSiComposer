@@ -154,7 +154,7 @@ class ProtoNet:
                 support_features = self._network.forward(images_support)
 
                 # Calculate prototypes
-                num_classes = len(labels_support)
+                num_classes = len(torch.unique(labels_support))
                 prototypes = [0] * num_classes
                 count = [0] * num_classes
                 for index, support_feature in enumerate(support_features):

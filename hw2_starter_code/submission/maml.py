@@ -251,7 +251,6 @@ class MAML:
             parameters, accuracies, _ = self._inner_loop(images_support, labels_support, train) 
             accuracies_support_batch.append(accuracies)
 
-            # MAYBE GET RID OF GRADIENT UPDATE? SOME OTHER ERROR SOMEWHERE ELSE?
             # Just like in the inner loop, calculate the update to the parameters (in this case thera)
             loss = F.cross_entropy(self._forward(images_query, parameters), labels_query)
             outer_loss_batch.append(loss)
