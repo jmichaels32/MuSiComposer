@@ -117,17 +117,10 @@ def get_icl_prompts(
             prompt += support_input + key_word + shuffled_support_labels[index] + " "
         prompt += test_input + " TL;DR:"
     else:
-        # Basically like TLDR but with more words and with potential counter examples
+        # Basically like TLDR but with more words
         key_word = " is too long, but it's summarized well as: "
-        key_word2 = ". With that being said, it's poorly summarized as: "
         for index, support_input in enumerate(shuffled_support_inputs):
-            addition = ". "
-            if len(support_inputs) > 1:
-                random_index = index + 1
-                if random_index >= len(support_inputs):
-                    random_index = 0
-                addition = key_word2 + shuffled_support_labels[random_index] + ". "
-            prompt += support_input + key_word + shuffled_support_labels[index] + addition
+            prompt += support_input + key_word + shuffled_support_labels[index] + ". "
         prompt += test_input + " is too long, but it's summarized well as:"
     ### END CODE HERE ###
 
@@ -220,7 +213,7 @@ def do_sample(
                 outputs = model(input_ids=input_ids, use_cache=True)
                 first_iter = False
             else:
-                outputs = model(input_ids=torch.tensor([[most_recent_token]]), past_key_values=past_key_values, use_cache=True)
+                outputs = model(input_ids=torch.tensor([[most_recent_token]], device=DEVICE), past_key_values=past_key_values, use_cache=True)
             
             # Access outputs 
             logits = outputs['logits']
@@ -297,9 +290,9 @@ def run_icl(
                             decoded_prediction = ""
                             # YOUR CODE HERE, complete for Q1.1c. Should be ~5-10 lines of code.
                             prompt = get_icl_prompts(support_x, support_y, test_input, prompt_mode)
-                            prompt_tokenized = tokenizer(prompt)
-                            prompt_tokenized.to(DEVICE)
-                            prediction = do_sample(model, prompt_tokenized, stop_tokens, max_tokens)
+                            prompt_tokenized = tokenizer(prompt, return_tensors='pt')
+                            input_ids = prompt_tokenized['input_ids'].to(DEVICE)
+                            prediction = do_sample(model, input_ids, stop_tokens, max_tokens)
                             decoded_prediction = tokenizer.decode(prediction)
                             # END YOUR CODE
 
