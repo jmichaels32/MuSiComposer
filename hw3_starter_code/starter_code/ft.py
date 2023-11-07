@@ -238,7 +238,7 @@ def get_acc(unnormalized_logits: torch.Tensor, targets: torch.Tensor) -> torch.T
         for i, val in enumerate(argmax):
             if val == targets[i]:
                 correct += 1
-        accuracy = correct/total
+        accuracy = torch.tensor(correct/total)
     elif unnormalized_logits.dim() == 3:
         # This is the generation case.
         batch_size, sequence_length, vocab_size = unnormalized_logits.shape
@@ -254,7 +254,7 @@ def get_acc(unnormalized_logits: torch.Tensor, targets: torch.Tensor) -> torch.T
                         total_correct += 1
                     total += 1
 
-        return total_correct/total
+        return torch.tensor(total_correct/total)
     else:
         raise ValueError(
             f"Logits should either be 2-dim (for classification) or 3-dim (for generation); got {unnormalized_logits.dim()}"
