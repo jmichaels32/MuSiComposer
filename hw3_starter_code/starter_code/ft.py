@@ -390,7 +390,7 @@ def tokenize_gpt2_batch(
         labels.append(batch_label)
 
     labels = torch.tensor(labels)
-    combined_sequences = {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}
+    combined_sequences = {"input_ids": input_ids.to(DEVICE), "attention_mask": attention_mask.to(DEVICE), "labels": labels.to(DEVICE)}
     return combined_sequences
 
 
