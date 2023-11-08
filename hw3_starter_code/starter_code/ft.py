@@ -254,7 +254,7 @@ def get_acc(unnormalized_logits: torch.Tensor, targets: torch.Tensor) -> torch.T
                         total_correct += 1
                     total += 1
 
-        return torch.tensor(total_correct/total)
+        accuracy = torch.tensor(total_correct/total)
     else:
         raise ValueError(
             f"Logits should either be 2-dim (for classification) or 3-dim (for generation); got {unnormalized_logits.dim()}"
