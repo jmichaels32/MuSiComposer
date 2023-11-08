@@ -245,14 +245,22 @@ def get_acc(unnormalized_logits: torch.Tensor, targets: torch.Tensor) -> torch.T
 
         argmax = torch.argmax(unnormalized_logits, dim=-1)
 
-        total = 0
-        total_correct = 0
+        batch_values = []
         for batch in range(batch_size):
+            total = 0
+            total_correct = 0
             for sequence in range(sequence_length - 1):
                 if targets[batch][sequence + 1] != -100:
                     if targets[batch][sequence + 1] == argmax[batch][sequence]:
                         total_correct += 1
                     total += 1
+            batch_values.append(total_correct/total)
+
+        total = 0
+        total_correct = 0
+        for batch_value in batch_values:
+            total_correct += batch_value
+            total += 1
 
         accuracy = torch.tensor(total_correct/total)
     else:
