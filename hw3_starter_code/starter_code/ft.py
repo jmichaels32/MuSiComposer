@@ -464,9 +464,9 @@ def ft_gpt2(model, tok, x, y, mode, dataset, batch_size=8, grad_accum=8):
         (loss / grad_accum).backward()
         #step += 1
         #optimizer.step()
-        if step % grad_accum == 0:
-            optimizer.zero_grad()
+        if (step + 1) % grad_accum == 0:
             optimizer.step()
+            optimizer.zero_grad()
         # END YOUR CODE
 
         if step % (grad_accum * 5) == 0:
