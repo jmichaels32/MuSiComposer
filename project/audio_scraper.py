@@ -89,7 +89,6 @@ def separate_instruments(audio_path='./raw_audio', instrument_audio_path='./inst
         os.makedirs(instrument_audio_path)
 
     audio_chunks = [f for f in os.listdir(audio_path) if f.endswith(('.mp3', '.wav', '.ogg'))]
-    audio_chunks = audio_chunks[:10]
     for i in range(0, len(audio_chunks), batch_size):
         batch_chunks = audio_chunks[i:i + batch_size]
         audio_chunk_paths = [os.path.join(audio_path, chunk) for chunk in batch_chunks]
