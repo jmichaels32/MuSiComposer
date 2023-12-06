@@ -112,6 +112,11 @@ def separate_instruments(audio_path='./raw_audio', instrument_audio_path='./inst
             if os.path.exists(chunk_stem_path):
                 shutil.rmtree(chunk_stem_path)
 
+def remove_vocal_files(instrument_audio_path='./instrument_audio'):
+    for file in os.listdir(instrument_audio_path):
+        if file.endswith('_vocals.wav'):
+            os.remove(os.path.join(instrument_audio_path, file))
+
 
 
 def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path='./converted_audio'):
@@ -149,5 +154,6 @@ def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path
 
 #download_and_split_audio()
 #generate_spectrograms()
-separate_instruments()
+#separate_instruments()
+remove_vocal_files()
 #spectrogram_to_audio()
