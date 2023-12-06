@@ -82,6 +82,39 @@ def generate_spectrograms(audio_path='./raw_audio', spectrogram_path='./spectrog
             plt.savefig(spectrogram_filepath, bbox_inches='tight', pad_inches=0, dpi=300)  # Higher resolution
             plt.close()
 
+import shutil
+
+def separate_instruments(audio_path='./raw_audio', instrument_audio_path='./instrument_audio', batch_size=10):
+    if not os.path.exists(instrument_audio_path):
+        os.makedirs(instrument_audio_path)
+
+    audio_chunks = [f for f in os.listdir(audio_path) if f.endswith(('.mp3', '.wav', '.ogg'))]
+    audio_chunks = audio_chunks[:10]
+    for i in range(0, len(audio_chunks), batch_size):
+        batch_chunks = audio_chunks[i:i + batch_size]
+        audio_chunk_paths = [os.path.join(audio_path, chunk) for chunk in batch_chunks]
+        # Use spleeter to separate the audio chunks into stems in batch
+        subprocess.call(['spleeter', 'separate', '-o', instrument_audio_path, '-p', 'spleeter:5stems', *audio_chunk_paths])
+
+        # Move and rename the stems for each audio chunk in the batch
+        for audio_chunk in batch_chunks:
+            chunk_name = audio_chunk.split('.')[0]
+            chunk_stem_path = os.path.join(instrument_audio_path, chunk_name)
+            for stem in ['drums', 'bass', 'piano', 'other', 'vocals']:
+                stem_filename = stem + '.wav'
+                stem_path = os.path.join(chunk_stem_path, stem_filename)
+                if os.path.exists(stem_path):
+                    # Rename the file to include the original chunk name
+                    new_stem_name = chunk_name + '_' + stem_filename
+                    new_stem_path = os.path.join(instrument_audio_path, new_stem_name)
+                    os.rename(stem_path, new_stem_path)
+
+            # Remove the temporary output directory created by spleeter for this chunk
+            if os.path.exists(chunk_stem_path):
+                shutil.rmtree(chunk_stem_path)
+
+
+
 def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path='./converted_audio'):
     # Ensure converted audio directory exists
     if not os.path.exists(converted_audio_path):
@@ -115,6 +148,7 @@ def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path
             except Exception as e:
                 print(f"Error processing {spectrogram_filename}: {e}")
 
-download_and_split_audio()
-generate_spectrograms()
+#download_and_split_audio()
+#generate_spectrograms()
+separate_instruments()
 #spectrogram_to_audio()
