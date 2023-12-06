@@ -21,7 +21,8 @@ def download_and_split_audio(download_path='./raw_audio', chunk_duration=30):
         video_links = file.readlines()
 
     # Download and split audio files into chunks
-    for i, link in enumerate(video_links[:100]):
+    for i, link in enumerate(video_links[100:]):
+        i += 100
         yt = YouTube(link.strip())
         audio_stream = yt.streams.get_audio_only()
         # Sanitize filename to avoid issues with special characters

@@ -30,7 +30,8 @@ def get_video_links_from_playlist(playlist_url):
     return [video.watch_url for video in playlist.videos]  
  
 
-playlist_urls = ['https://www.youtube.com/watch?v=_zuVOdOiGlo&list=PLofht4PTcKYnaH8w5olJCI-wUVxuoMHqM&pp=iAQB', 
+playlist_urls = ['https://www.youtube.com/watch?v=_zuVOdOiGlo&list=PLofht4PTcKYnaH8w5olJCI-wUVxuoMHqM&pp=iAQB']
+''', 
                   'https://www.youtube.com/watch?v=DUpZt8Qg3fM&list=PLk_H7HxvSE2fTCUoWKG5YyfUwVFAAVnKL',
                   'https://www.youtube.com/watch?v=WTsmIbNku5g&list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo',
                   'https://www.youtube.com/watch?v=PFG3oSLjSv8&list=PLf-Sb-XKHsVfoal99nB45VsZVoCbkS479',
@@ -45,7 +46,7 @@ playlist_urls = ['https://www.youtube.com/watch?v=_zuVOdOiGlo&list=PLofht4PTcKYn
                   'https://www.youtube.com/watch?v=bO2UgfjRVkk&list=PL6fhs6TSspZszor_x46PxP6USKFLV_Dze',
                   'https://www.youtube.com/watch?v=SFiwd1Lty94&list=PLXCoHsJ9oLedL4qvXh8uAooXpGuliDWiv',
                   'https://www.youtube.com/watch?v=lPCc78REQpU&list=PL6fhs6TSspZu4nYlvQ_l206FmRaMT_MGh',
-                  'https://www.youtube.com/watch?v=zdYzL6wkr0A&list=PL_77ETNrRb7Ep0Zv3tQNLNxQgwTsTHNrV']
+                  'https://www.youtube.com/watch?v=zdYzL6wkr0A&list=PL_77ETNrRb7Ep0Zv3tQNLNxQgwTsTHNrV']'''
 
 # Initialize an empty list to store all video URLs
 all_video_urls = []
