@@ -153,23 +153,40 @@ def train_multitaskedGAN():
 # Evaluation Functions
 # ------------
 
-def evaluate_song_quality(song_directory):
+from frechet_audio_distance import FrechetAudioDistance
+import numpy as np
+
+def evaluate_song_quality_FAD(song_directory, background_set_directory):
     """
-    Evaluate the quality of songs in a given directory.
+    Evaluate the quality of songs in a given directory using Frechet Audio Distance.
 
     Args:
         song_directory (str): The directory where songs are stored.
+        background_set_directory (str): The directory with background set for reference.
 
     Returns:
-        dict: A dictionary with song filenames as keys and their quality score as values.
+        tuple: A tuple containing the average Frechet Audio Distance score and the standard deviation.
     """
-    quality_scores = {}
+    quality_scores = []
+    # Initialize Frechet Audio Distance with the desired model
+    frechet = FrechetAudioDistance(
+        model_name="vggish",
+        sample_rate=16000,
+        use_pca=False, 
+        use_activation=False,
+        verbose=False
+    )
+    # Calculate the Frechet Audio Distance score for each song
     for song_file in os.listdir(song_directory):
         if song_file.endswith('.wav'):
-            # Placeholder for actual quality evaluation logic
-            quality_score = random.uniform(0, 10)  # Assign a random quality score between 0 and 10
-            quality_scores[song_file] = quality_score
-    return quality_scores
+            song_path = os.path.join(song_directory, song_file)
+            fad_score = frechet.score(background_set_directory, song_path, dtype="float32")
+            quality_scores.append(fad_score)
+    
+    # Calculate the average and standard deviation of the FAD scores
+    average_fad = np.mean(quality_scores)
+    std_fad = np.std(quality_scores)
+    return average_fad, std_fad
 
 def evaluate_song_quality_PLACEHOLDER(song_directory):
     """
@@ -200,3 +217,12 @@ def evaluate_song_quality_PLACEHOLDER(song_directory):
 
 # First Model
 #train_multitaskedGAN()
+
+# ------------
+# Evaluation
+# ------------
+# Example call to the function
+raw_audio_dir = './raw_audio'
+generated_audio_dir = './musicgen_generated_audio'
+average_fad, std_fad = evaluate_song_quality_FAD(generated_audio_dir, raw_audio_dir)
+print(f"Average FAD Score: {average_fad}, Standard Deviation: {std_fad}")
