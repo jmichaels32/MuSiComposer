@@ -31,6 +31,10 @@ def download_and_split_audio(download_path='./raw_audio', chunk_duration=30):
         
         # Load the temporary audio file
         temp_filepath = os.path.join(download_path, temp_filename)
+        file_size = os.path.getsize(temp_filepath)
+        if file_size >= 4 * 1024 * 1024 * 1024:
+            os.remove(temp_filepath)
+            continue
         audio = AudioSegment.from_file(temp_filepath)
         
         # Split the audio segment into 30-second chunks and pad the last one if necessary
@@ -110,6 +114,6 @@ def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path
             except Exception as e:
                 print(f"Error processing {spectrogram_filename}: {e}")
 
-#download_and_split_audio()
+download_and_split_audio()
 generate_spectrograms()
 #spectrogram_to_audio()
