@@ -117,6 +117,24 @@ def remove_vocal_files(instrument_audio_path='./instrument_audio'):
         if file.endswith('_vocals.wav'):
             os.remove(os.path.join(instrument_audio_path, file))
 
+import os
+import random
+from collections import defaultdict
+
+def cap_instrument_files(instrument_audio_path='./instrument_audio', max_files_per_instrument=1000):
+    # Get all unique chunk names without instrument and file extension
+    chunk_names = set('_'.join(file.split('_')[:-1]) for file in os.listdir(instrument_audio_path) if file.endswith('.wav'))
+
+    # Randomly select a subset of chunk names to keep
+    chunks_to_keep = set(random.sample(chunk_names, min(len(chunk_names), max_files_per_instrument)))
+
+    # Remove files that are not in the chunks to keep
+    for file in os.listdir(instrument_audio_path):
+        if file.endswith('.wav'):
+            chunk_name = '_'.join(file.split('_')[:-1])
+            if chunk_name not in chunks_to_keep:
+                os.remove(os.path.join(instrument_audio_path, file))
+
 
 
 def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path='./converted_audio'):
@@ -155,5 +173,6 @@ def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path
 #download_and_split_audio()
 #generate_spectrograms()
 #separate_instruments()
-remove_vocal_files()
+#remove_vocal_files()
+cap_instrument_files()
 #spectrogram_to_audio()
