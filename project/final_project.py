@@ -13,8 +13,6 @@ def music_gen(description='a lofi study song', num_audio_files=100):
 
     raw_audio_dir = './raw_audio'
     audio_files = [f for f in os.listdir(raw_audio_dir) if f.endswith('.mp3')]
-    melodies = []
-    sample_rates = []
     filenames = []
 
     output_dir = 'musicgen_generated_audio'
@@ -25,10 +23,10 @@ def music_gen(description='a lofi study song', num_audio_files=100):
         filenames.append(audio_file.replace('.mp3', ''))
         melody, sr = torchaudio.load(os.path.join(raw_audio_dir, audio_file))
         if melody.shape[0] > 1:
-            melody = torch.mean(melody, dim=0, keepdim=True)
-        wav = model.generate_with_chroma([description], melody.unsqueeze(0), sr)
+            melody = melody.mean(dim=0, keepdim=True)
+        wav = model.generate_with_chroma([description], melody, sr)
         audio_file = filenames[-1]
-        audio_write(os.path.join(output_dir, f'{audio_file}_melody'), wav.cpu(), model.sample_rate, strategy="loudness", loudness_compressor=True)
+        audio_write(os.path.join(output_dir, f'{audio_file}_melody'), wav.squeeze(0).cpu(), model.sample_rate, strategy="loudness", loudness_compressor=True)
     
 # FIRST MODEL:
 # Vision Transformer to Vision Transformer heads
@@ -198,7 +196,7 @@ def evaluate_song_quality_PLACEHOLDER(song_directory):
 #music_gen(description='')
 
 # Second Baseline
-music_gen()
+#music_gen()
 
 # First Model
 #train_multitaskedGAN()
