@@ -21,8 +21,7 @@ def download_and_split_audio(download_path='./raw_audio', chunk_duration=30):
         video_links = file.readlines()
 
     # Download and split audio files into chunks
-    for i, link in enumerate(video_links[100:]):
-        i += 100
+    for i, link in enumerate(video_links[:50]):
         yt = YouTube(link.strip())
         audio_stream = yt.streams.get_audio_only()
         # Sanitize filename to avoid issues with special characters
@@ -170,9 +169,9 @@ def spectrogram_to_audio(spectrogram_path='./spectrograms', converted_audio_path
             except Exception as e:
                 print(f"Error processing {spectrogram_filename}: {e}")
 
-#download_and_split_audio()
-#generate_spectrograms()
-#separate_instruments()
-#remove_vocal_files()
+download_and_split_audio()
+generate_spectrograms()
+separate_instruments()
+remove_vocal_files()
 cap_instrument_files()
 #spectrogram_to_audio()
